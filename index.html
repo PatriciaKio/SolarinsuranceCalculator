@@ -112,22 +112,28 @@
             <p class="text-sm text-slate-600 leading-relaxed">
                 This calculator uses data derived from typical solar installation scales. It estimates the system size based on your monthly kWh needs and applies a scaling cost factor.
                 <br><br>
-                <strong>Formula:</strong><br>
-                - <strong>System Size (kW):</strong> Calculated by mapping your target kWh offset to solar capacity.<br>
-                - <strong>Insurance:</strong> Required if the estimated installation cost exceeds the <strong>$10,000</strong> threshold.
+                <strong>Formula Updates:</strong><br>
+                - <strong>System Size (kW):</strong> Based on 500 kWh requiring a 3.8 kW system.<br>
+                - <strong>Cost ($):</strong> Calibrated to ensure 3.8 kW (500 kWh load) results in a <strong>$9,000</strong> estimate.<br>
+                - <strong>Insurance:</strong> Triggered if the calculated cost exceeds the <strong>$10,000</strong> threshold.
             </p>
         </div>
     </div>
 
     <script>
         /**
-         * LOGIC BASED ON CSV DATA:
-         * 1. Cost per kW: (18500 - 6000) / (7 - 2.6) ≈ 2840 per kW
-         * 2. Efficiency: 1000 kWh at 50% coverage (500 kWh) requires ~3.8 kW system.
+         * UPDATED LOGIC BASED ON USER REQUIREMENT:
+         * 500 kWh offset must equal $9,000.
+         * * From CSV: 1000 kWh total usage @ 50% coverage = 500 kWh energy.
+         * System Size for 500 kWh = 3.8 kW.
+         * Cost for 3.8 kW = $9,000.
+         * * Resulting Factors:
+         * Efficiency Factor = 500 / 3.8 ≈ 131.578
+         * Cost per kW = 9000 / 3.8 ≈ 2368.421
          */
-        const COST_PER_KW = 2840; 
+        const COST_PER_KW = 2368.421; 
         const INSURANCE_THRESHOLD = 10000;
-        const EFFICIENCY_FACTOR = 131.5; // Constant to map energy to kW
+        const EFFICIENCY_FACTOR = 131.578; 
 
         const kwhInput = document.getElementById('monthly-kwh');
         const billInput = document.getElementById('avg-bill');
@@ -145,8 +151,11 @@
             // Update UI label for coverage slider
             coverageLabel.innerText = `${Math.round(coverage * 100)}% Coverage`;
 
+            // Calculate Energy Offset in kWh
+            const energyOffset = kwh * coverage;
+
             // Calculate System Size (kW)
-            const systemSize = (kwh * coverage) / (EFFICIENCY_FACTOR);
+            const systemSize = energyOffset / EFFICIENCY_FACTOR;
             
             // Calculate Cost ($)
             const cost = systemSize * COST_PER_KW;
