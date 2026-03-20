@@ -1,0 +1,2 @@
+# SolarinsuranceCalculator
+State insurance status
