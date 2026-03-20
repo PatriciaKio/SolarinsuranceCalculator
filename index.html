@@ -3,187 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar System & Insurance Calculator</title>
+    <title>Solar Insurance & System Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
-        .card {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
-        .input-group label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 0.5rem;
-        }
-        .input-field {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .input-field:focus {
-            border-color: #3b82f6;
-            ring: 2px solid #3b82f6;
-        }
-        .result-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-weight: 700;
-            font-size: 0.875rem;
+        .result-box {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-slate-800">Solar Energy & Insurance Estimator</h1>
-            <p class="text-slate-500 mt-2">Calculate system requirements and insurance needs based on your energy consumption.</p>
-        </header>
+<body class="min-h-screen flex items-center justify-center p-4">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Input Section -->
-            <div class="card p-6">
-                <h2 class="text-xl font-semibold mb-6 text-slate-700 border-b pb-2">User Details</h2>
-                
-                <div class="space-y-6">
-                    <div class="input-group">
-                        <label for="monthly-kwh">Monthly Energy Use (kWh)</label>
-                        <input type="number" id="monthly-kwh" class="input-field" placeholder="e.g. 1000" value="1000">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="avg-bill">Current Monthly Bill ($)</label>
-                        <input type="number" id="avg-bill" class="input-field" placeholder="e.g. 150" value="150">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="target-coverage">Target Solar Coverage (%)</label>
-                        <input type="range" id="target-coverage" min="10" max="100" step="5" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-                        <div class="flex justify-between text-xs text-slate-500 mt-2">
-                            <span>10%</span>
-                            <span id="coverage-label" class="font-bold text-blue-600">50% Coverage</span>
-                            <span>100%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Output Section -->
-            <div class="card p-6 bg-slate-50">
-                <h2 class="text-xl font-semibold mb-6 text-slate-700 border-b pb-2">Estimates</h2>
-                
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-600">Calculated System Size:</span>
-                        <span id="res-system-size" class="text-xl font-bold text-slate-900">0.0 kW</span>
-                    </div>
-                    
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-600">Estimated Install Cost:</span>
-                        <span id="res-cost" class="text-xl font-bold text-slate-900">$0.00</span>
-                    </div>
-
-                    <div class="mt-8 p-4 rounded-lg bg-white border border-slate-200">
-                        <div class="flex flex-col items-center text-center">
-                            <span class="text-sm font-medium text-slate-500 mb-2 uppercase tracking-wider">Insurance Requirement</span>
-                            <div id="insurance-status" class="result-badge">
-                                Determining...
-                            </div>
-                            <p id="insurance-note" class="text-xs text-slate-500 mt-3 italic">
-                                Systems exceeding $10,000 in cost typically require specialized insurance coverage.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="max-w-md w-full glass-card rounded-3xl p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Solar Insurance Estimator</h1>
+            <p class="text-gray-500 text-sm">Based on household size and system capacity</p>
         </div>
 
-        <!-- Explanation Card -->
-        <div class="mt-12 card p-6 overflow-hidden">
-            <h3 class="text-lg font-semibold mb-4 text-slate-700">How it works</h3>
-            <p class="text-sm text-slate-600 leading-relaxed">
-                This calculator uses data derived from typical solar installation scales. It estimates the system size based on your monthly kWh needs and applies a scaling cost factor.
-                <br><br>
-                <strong>Formula Updates:</strong><br>
-                - <strong>System Size (kW):</strong> Based on 500 kWh requiring a 3.8 kW system.<br>
-                - <strong>Cost ($):</strong> Calibrated to ensure 3.8 kW (500 kWh load) results in a <strong>$9,000</strong> estimate.<br>
-                - <strong>Insurance:</strong> Triggered if the calculated cost exceeds the <strong>$10,000</strong> threshold.
-            </p>
+        <div class="space-y-6">
+            <div>
+                <label for="people" class="block text-sm font-medium text-gray-700 mb-2">
+                    Number of People
+                </label>
+                <div class="relative">
+                    <input 
+                        type="number" 
+                        id="people" 
+                        placeholder="e.g. 8" 
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        min="1"
+                        oninput="calculate()"
+                    >
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results" class="hidden space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-blue-50 rounded-xl">
+                        <p class="text-xs text-blue-600 font-semibold uppercase tracking-wider">System Size</p>
+                        <p id="system-size" class="text-lg font-bold text-blue-900">-</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-xl">
+                        <p class="text-xs text-blue-600 font-semibold uppercase tracking-wider">Est. Cost</p>
+                        <p id="cost" class="text-lg font-bold text-blue-900">-</p>
+                    </div>
+                </div>
+
+                <div id="insurance-card" class="p-5 rounded-2xl flex items-center justify-between border">
+                    <div>
+                        <p class="text-sm font-medium opacity-80" id="insurance-label">Insurance Required?</p>
+                        <p id="insurance-status" class="text-xl font-black uppercase tracking-tight">-</p>
+                    </div>
+                    <div id="status-icon"></div>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Capacity: <span id="capacity" class="font-medium"></span></span>
+                        <span>50% Use: <span id="monthly-use" class="font-medium"></span> KWH</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div id="progress-bar" class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="empty-state" class="text-center py-10">
+                <div class="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <p class="text-gray-400 text-sm italic">Enter the number of people to see the calculation.</p>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t border-gray-100 text-[10px] text-gray-400 text-center uppercase tracking-widest">
+            Threshold: Cost > $10,000
         </div>
     </div>
 
     <script>
-        /**
-         * UPDATED LOGIC BASED ON USER REQUIREMENT:
-         * 500 kWh offset must equal $9,000.
-         * * From CSV: 1000 kWh total usage @ 50% coverage = 500 kWh energy.
-         * System Size for 500 kWh = 3.8 kW.
-         * Cost for 3.8 kW = $9,000.
-         * * Resulting Factors:
-         * Efficiency Factor = 500 / 3.8 ≈ 131.578
-         * Cost per kW = 9000 / 3.8 ≈ 2368.421
-         */
-        const COST_PER_KW = 2368.421; 
-        const INSURANCE_THRESHOLD = 10000;
-        const EFFICIENCY_FACTOR = 131.578; 
-
-        const kwhInput = document.getElementById('monthly-kwh');
-        const billInput = document.getElementById('avg-bill');
-        const coverageInput = document.getElementById('target-coverage');
-        const coverageLabel = document.getElementById('coverage-label');
-
-        const resSystemSize = document.getElementById('res-system-size');
-        const resCost = document.getElementById('res-cost');
-        const insuranceStatus = document.getElementById('insurance-status');
-
         function calculate() {
-            const kwh = parseFloat(kwhInput.value) || 0;
-            const coverage = parseFloat(coverageInput.value) / 100;
-            
-            // Update UI label for coverage slider
-            coverageLabel.innerText = `${Math.round(coverage * 100)}% Coverage`;
+            const peopleInput = document.getElementById('people');
+            const numPeople = parseFloat(peopleInput.value);
+            const resultsDiv = document.getElementById('results');
+            const emptyState = document.getElementById('empty-state');
 
-            // Calculate Energy Offset in kWh
-            const energyOffset = kwh * coverage;
+            if (isNaN(numPeople) || numPeople <= 0) {
+                resultsDiv.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
 
-            // Calculate System Size (kW)
-            const systemSize = energyOffset / EFFICIENCY_FACTOR;
-            
-            // Calculate Cost ($)
-            const cost = systemSize * COST_PER_KW;
-            
-            // Update UI Results
-            resSystemSize.innerText = `${systemSize.toFixed(1)} kW`;
-            resCost.innerText = new Intl.NumberFormat('en-US', { 
-                style: 'currency', 
-                currency: 'USD' 
-            }).format(cost);
+            resultsDiv.classList.remove('hidden');
+            emptyState.classList.add('hidden');
 
-            // Insurance Logic
-            if (cost > INSURANCE_THRESHOLD) {
-                insuranceStatus.innerText = "INSURANCE REQUIRED";
-                insuranceStatus.className = "result-badge bg-red-100 text-red-700 border border-red-200";
+            /**
+             * Linear Regression derived from provided CSV data:
+             * Capacity (y) ≈ 0.33 * People + 1.2
+             * Cost (y) ≈ 1040 * People - 200
+             * System Size (y) ≈ 0.36 * People + 0.4
+             * Monthly Use 50% (y) ≈ 54 * People + 20
+             */
+            
+            const capacity = Math.max(1, Math.round(0.33 * numPeople + 1.2));
+            const systemSize = (0.36 * numPeople + 0.4).toFixed(1);
+            const monthly50 = Math.round(54 * numPeople + 20);
+            const cost = Math.round(1040 * numPeople - 200);
+            const needsInsurance = cost > 10000;
+
+            // Update UI
+            document.getElementById('capacity').innerText = capacity;
+            document.getElementById('system-size').innerText = systemSize + ' KW';
+            document.getElementById('monthly-use').innerText = monthly50;
+            document.getElementById('cost').innerText = '$' + cost.toLocaleString();
+            
+            const statusText = document.getElementById('insurance-status');
+            const insuranceCard = document.getElementById('insurance-card');
+            const statusIcon = document.getElementById('status-icon');
+            const progressBar = document.getElementById('progress-bar');
+
+            // Progress bar based on cost threshold (10k)
+            const progress = Math.min(100, (cost / 15000) * 100);
+            progressBar.style.width = progress + '%';
+
+            if (needsInsurance) {
+                statusText.innerText = 'YES';
+                statusText.className = 'text-2xl font-black text-red-600 uppercase tracking-tight';
+                insuranceCard.className = 'p-5 rounded-2xl flex items-center justify-between border border-red-200 bg-red-50';
+                statusIcon.innerHTML = `
+                    <div class="bg-red-500 p-2 rounded-full text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                `;
             } else {
-                insuranceStatus.innerText = "NO ADDITIONAL INSURANCE";
-                insuranceStatus.className = "result-badge bg-green-100 text-green-700 border border-green-200";
+                statusText.innerText = 'NO';
+                statusText.className = 'text-2xl font-black text-green-600 uppercase tracking-tight';
+                insuranceCard.className = 'p-5 rounded-2xl flex items-center justify-between border border-green-200 bg-green-50';
+                statusIcon.innerHTML = `
+                    <div class="bg-green-500 p-2 rounded-full text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                `;
             }
         }
-
-        // Add Event Listeners
-        kwhInput.addEventListener('input', calculate);
-        billInput.addEventListener('input', calculate);
-        coverageInput.addEventListener('input', calculate);
-
-        // Run calculation on load
-        window.addEventListener('DOMContentLoaded', calculate);
     </script>
 </body>
 </html>
