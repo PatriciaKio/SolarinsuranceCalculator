@@ -1,1 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System & Insurance Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            border-color: #3b82f6;
+            ring: 2px solid #3b82f6;
+        }
+        .result-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-slate-800">Solar Energy & Insurance Estimator</h1>
+            <p class="text-slate-500 mt-2">Calculate system requirements and insurance needs based on your energy consumption.</p>
+        </header>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Input Section -->
+            <div class="card p-6">
+                <h2 class="text-xl font-semibold mb-6 text-slate-700 border-b pb-2">User Details</h2>
+                
+                <div class="space-y-6">
+                    <div class="input-group">
+                        <label for="monthly-kwh">Monthly Energy Use (kWh)</label>
+                        <input type="number" id="monthly-kwh" class="input-field" placeholder="e.g. 1000" value="1000">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="avg-bill">Current Monthly Bill ($)</label>
+                        <input type="number" id="avg-bill" class="input-field" placeholder="e.g. 150" value="150">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="target-coverage">Target Solar Coverage (%)</label>
+                        <input type="range" id="target-coverage" min="10" max="100" step="5" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <div class="flex justify-between text-xs text-slate-500 mt-2">
+                            <span>10%</span>
+                            <span id="coverage-label" class="font-bold text-blue-600">50% Coverage</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="card p-6 bg-slate-50">
+                <h2 class="text-xl font-semibold mb-6 text-slate-700 border-b pb-2">Estimates</h2>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-600">Calculated System Size:</span>
+                        <span id="res-system-size" class="text-xl font-bold text-slate-900">0.0 kW</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-600">Estimated Install Cost:</span>
+                        <span id="res-cost" class="text-xl font-bold text-slate-900">$0.00</span>
+                    </div>
+
+                    <div class="mt-8 p-4 rounded-lg bg-white border border-slate-200">
+                        <div class="flex flex-col items-center text-center">
+                            <span class="text-sm font-medium text-slate-500 mb-2 uppercase tracking-wider">Insurance Requirement</span>
+                            <div id="insurance-status" class="result-badge">
+                                Determining...
+                            </div>
+                            <p id="insurance-note" class="text-xs text-slate-500 mt-3 italic">
+                                Systems exceeding $10,000 in cost typically require specialized insurance coverage.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explanation Card -->
+        <div class="mt-12 card p-6 overflow-hidden">
+            <h3 class="text-lg font-semibold mb-4 text-slate-700">How it works</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                This calculator uses data derived from typical solar installation scales. It estimates the system size based on your monthly kWh needs and applies a scaling cost factor.
+                <br><br>
+                <strong>Formula:</strong><br>
+                - <strong>System Size (kW):</strong> Calculated by mapping your target kWh offset to solar capacity.<br>
+                - <strong>Insurance:</strong> Required if the estimated installation cost exceeds the <strong>$10,000</strong> threshold.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * LOGIC BASED ON CSV DATA:
+         * 1. Cost per kW: (18500 - 6000) / (7 - 2.6) ≈ 2840 per kW
+         * 2. Efficiency: 1000 kWh at 50% coverage (500 kWh) requires ~3.8 kW system.
+         */
+        const COST_PER_KW = 2840; 
+        const INSURANCE_THRESHOLD = 10000;
+        const EFFICIENCY_FACTOR = 131.5; // Constant to map energy to kW
+
+        const kwhInput = document.getElementById('monthly-kwh');
+        const billInput = document.getElementById('avg-bill');
+        const coverageInput = document.getElementById('target-coverage');
+        const coverageLabel = document.getElementById('coverage-label');
+
+        const resSystemSize = document.getElementById('res-system-size');
+        const resCost = document.getElementById('res-cost');
+        const insuranceStatus = document.getElementById('insurance-status');
+
+        function calculate() {
+            const kwh = parseFloat(kwhInput.value) || 0;
+            const coverage = parseFloat(coverageInput.value) / 100;
+            
+            // Update UI label for coverage slider
+            coverageLabel.innerText = `${Math.round(coverage * 100)}% Coverage`;
+
+            // Calculate System Size (kW)
+            const systemSize = (kwh * coverage) / (EFFICIENCY_FACTOR);
+            
+            // Calculate Cost ($)
+            const cost = systemSize * COST_PER_KW;
+            
+            // Update UI Results
+            resSystemSize.innerText = `${systemSize.toFixed(1)} kW`;
+            resCost.innerText = new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD' 
+            }).format(cost);
+
+            // Insurance Logic
+            if (cost > INSURANCE_THRESHOLD) {
+                insuranceStatus.innerText = "INSURANCE REQUIRED";
+                insuranceStatus.className = "result-badge bg-red-100 text-red-700 border border-red-200";
+            } else {
+                insuranceStatus.innerText = "NO ADDITIONAL INSURANCE";
+                insuranceStatus.className = "result-badge bg-green-100 text-green-700 border border-green-200";
+            }
+        }
+
+        // Add Event Listeners
+        kwhInput.addEventListener('input', calculate);
+        billInput.addEventListener('input', calculate);
+        coverageInput.addEventListener('input', calculate);
+
+        // Run calculation on load
+        window.addEventListener('DOMContentLoaded', calculate);
+    </script>
+</body>
+</html>
